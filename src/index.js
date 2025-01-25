@@ -2,12 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const agentRoutes = require('./routes/agent_routes');
+const cookieParser = require('cookie-parser');
+
+
 dotenv.config();
 
 const app = express();
 
 app.use(bodyParser.json());
-
+app.use(cookieParser());
 app.use('/api/v1/agents', agentRoutes);
 
 
