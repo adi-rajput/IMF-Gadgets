@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
+const jwt = require('jsonwebtoken');
 
 const agentFirstNames = ['James', 'Sophia', 'Alexander', 'Victoria', 'Evelyn', 'Sebastian', 'Charlotte', 'Oliver', 'Isabella', 'Maximilian'];
 const agentLastNames = ['Carter', 'Hawkins', 'Montgomery', 'Weston', 'Knight', 'Davenport', 'Blackwood', 'Sinclair', 'Caldwell', 'Grayson'];
@@ -47,6 +48,43 @@ const registerAgent = async (req, res) => {
   }
 };
 
+const loginAgent = async (req, res) => {
+    const { agentEmail, agentSecretKey } = req.body;
+  
+    if (!agentEmail || !agentSecretKey) {
+      return res.status(400).json({ message: 'Email and secret key are required' });
+    }
+  
+    try {
+      const agent = await prisma.agent.findUnique({
+        where: { agentEmail },
+      });
+  
+      if (!agent) {
+        return res.status(404).json({ message: 'Agent not found' });
+      }
+  
+      const isSecretKeyValid = await bcrypt.compare(agentSecretKey, agent.agentSecretKey);
+  
+      if (!isSecretKeyValid) {
+        return res.status(401).json({ message: 'Invalid secret key' });
+      }
+  
+      const token = jwt.sign(
+        { agentId: agent.agentId, agentEmail: agent.agentEmail },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+  
+      return res.status(200).json({
+        message: 'Agent logged in successfully',
+        agentName: agent.agentName,
+        token,
+      });
+    } catch (error) {
+      console.error('Error logging in agent:', error);
+      return res.status(500).json({ message: 'Internal server error. Failed to log in.' });
+    }
+  };
 
-
-module.exports = { registerAgent };
+module.exports = { registerAgent , loginAgent };
