@@ -149,4 +149,37 @@ const getAllGadgets = async (req, res) => {
   };
   
   
-module.exports = { addGadget  , updateGadget , getGadgetsByStatus , getAllGadgets , decommissionGadget};
+  const triggerSelfDestruct = async (req, res) => {
+    const { gadgetId } = req.params;
+  
+    try {
+      const gadget = await prisma.gadget.findUnique({
+        where: { gadgetId },
+      });
+  
+      if (!gadget) {
+        return res.status(404).json({ message: 'Gadget not found' });
+      }
+  
+      const confirmationCode = Math.floor(100000 + Math.random() * 900000);
+  
+      const updatedGadget = await prisma.gadget.update({
+        where: { gadgetId },
+        data: {
+          status: 'Destroyed',
+          decommissionedAt: new Date(),
+        },
+      });
+  
+      return res.status(200).json({
+        message: 'Self-destruct sequence triggered',
+        confirmationCode,
+        gadget: updatedGadget,
+      });
+    } catch (error) {
+      console.error('Error triggering self-destruct:', error);
+      return res.status(500).json({ message: 'Failed to trigger self-destruct sequence' });
+    }
+  };
+  
+module.exports = { addGadget  , updateGadget , getGadgetsByStatus , getAllGadgets , decommissionGadget , triggerSelfDestruct};
