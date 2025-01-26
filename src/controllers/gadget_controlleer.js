@@ -65,4 +65,30 @@ const getAllGadgets = async (req, res) => {
   };
   
 
-module.exports = { addGadget , getAllGadgets };
+  const updateGadget = async (req, res) => {
+    const { gadgetId } = req.params;
+    const { gadgetName, status } = req.body;
+  
+    if (!gadgetName && !status) {
+      return res.status(400).json({ message: 'No fields provided to update' });
+    }
+  
+    try {
+      const updatedGadget = await prisma.gadget.update({
+        where: { gadgetId },
+        data: {
+          gadgetName: gadgetName || undefined,
+          status: status || undefined,
+          updatedAt: new Date()
+        }
+      });
+  
+      return res.status(200).json({ message: 'Gadget updated successfully', updatedGadget });
+    } catch (error) {
+      console.error('Error updating gadget:', error);
+      return res.status(500).json({ message: 'Failed to update gadget' });
+    }
+  };
+  
+
+module.exports = { addGadget , getAllGadgets , updateGadget};
