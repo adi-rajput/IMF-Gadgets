@@ -12,7 +12,7 @@ const authenticateAgent = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const agent = await prisma.agent.findUnique({
-      where: { id: decoded.agentId },
+      where: { agentId: decoded.agentId },
     });
 
     if (!agent) {

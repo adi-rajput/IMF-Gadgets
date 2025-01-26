@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const { log } = require('console');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 
@@ -93,4 +94,19 @@ const loginAgent = async (req, res) => {
     }
   };
 
-module.exports = { registerAgent , loginAgent };
+  const logoutAgent = (req, res) => {
+    try {
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+      });
+      return res.status(200).json({ message: 'Agent logged out successfully' });
+    } catch (error) {
+      console.error('Error logging out agent:', error);
+      return res.status(500).json({ message: 'Failed to log out agent' });
+    }
+  };
+  
+
+module.exports = { registerAgent , loginAgent ,logoutAgent};
