@@ -118,5 +118,35 @@ const getAllGadgets = async (req, res) => {
     }
   };
   
+  const decommissionGadget = async (req, res) => {
+    const { gadgetId } = req.params;
   
-module.exports = { addGadget  , updateGadget , getGadgetsByStatus , getAllGadgets};
+    try {
+      const gadget = await prisma.gadget.findUnique({
+        where: { gadgetId },
+      });
+  
+      if (!gadget) {
+        return res.status(404).json({ message: 'Gadget not found' });
+      }
+  
+      const updatedGadget = await prisma.gadget.update({
+        where: { gadgetId },
+        data: {
+          status: 'Decommissioned',
+          decommissionedAt: new Date(),
+        },
+      });
+  
+      return res.status(200).json({
+        message: 'Gadget decommissioned successfully',
+        gadget: updatedGadget,
+      });
+    } catch (error) {
+      console.error('Error decommissioning gadget:', error);
+      return res.status(500).json({ message: 'Failed to decommission gadget' });
+    }
+  };
+  
+  
+module.exports = { addGadget  , updateGadget , getGadgetsByStatus , getAllGadgets , decommissionGadget};
