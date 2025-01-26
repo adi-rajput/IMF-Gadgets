@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const agentRoutes = require('./routes/agent_routes');
-const gadgetRoutes = require('./routes/gadgets_routes');
+const agentRoutes = require('./src/routes/agent_routes');
+const gadgetRoutes = require('./src/routes/gadgets_routes');
 const cookieParser = require('cookie-parser');
 
 
