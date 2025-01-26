@@ -96,19 +96,22 @@ const getAllGadgets = async (req, res) => {
     if (!status) {
       return res.status(400).json({ message: "Status query parameter is required" });
     }
-  
+    
     try {
       const gadgets = await prisma.gadget.findMany({
         where: {
           status: status, 
         },
       });
-  
+      const gadgetsWithProbability = gadgets.map((gadget) => ({
+        ...gadget,
+        missionSuccessProbability: `${Math.floor(Math.random() * 100) + 1}% success probability`
+      }));
       if (gadgets.length === 0) {
         return res.status(404).json({ message: `No gadgets found with status: ${status}` });
       }
   
-      return res.status(200).json(gadgets);
+      return res.status(200).json({ gadgets: gadgetsWithProbability });
     } catch (error) {
       console.error('Error retrieving gadgets by status:', error);
       return res.status(500).json({ message: 'Failed to retrieve gadgets by status' });
