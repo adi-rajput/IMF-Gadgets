@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { get } = require('http');
 const prisma = new PrismaClient();
 
 const gadgetFirstNames = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet'];
@@ -47,4 +48,21 @@ const addGadget = async (req, res) => {
   }
 };
 
-module.exports = { addGadget };
+const getAllGadgets = async (req, res) => {
+    try {
+      const gadgets = await prisma.gadget.findMany();
+  
+      const gadgetsWithProbability = gadgets.map((gadget) => ({
+        ...gadget,
+        missionSuccessProbability: `${Math.floor(Math.random() * 100) + 1}% success probability`
+      }));
+  
+      return res.status(200).json({ gadgets: gadgetsWithProbability });
+    } catch (error) {
+      console.error('Error retrieving gadgets:', error);
+      return res.status(500).json({ message: 'Failed to retrieve gadgets' });
+    }
+  };
+  
+
+module.exports = { addGadget , getAllGadgets };
