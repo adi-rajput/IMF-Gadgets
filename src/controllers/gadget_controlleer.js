@@ -90,5 +90,30 @@ const getAllGadgets = async (req, res) => {
     }
   };
   
-
-module.exports = { addGadget , getAllGadgets , updateGadget};
+  const getGadgetsByStatus = async (req, res) => {
+    const { status } = req.query;
+  
+    if (!status) {
+      return res.status(400).json({ message: "Status query parameter is required" });
+    }
+  
+    try {
+      const gadgets = await prisma.gadget.findMany({
+        where: {
+          status: status, 
+        },
+      });
+  
+      if (gadgets.length === 0) {
+        return res.status(404).json({ message: `No gadgets found with status: ${status}` });
+      }
+  
+      return res.status(200).json(gadgets);
+    } catch (error) {
+      console.error('Error retrieving gadgets by status:', error);
+      return res.status(500).json({ message: 'Failed to retrieve gadgets by status' });
+    }
+  };
+  
+  
+module.exports = { addGadget  , updateGadget , getGadgetsByStatus , getAllGadgets};
